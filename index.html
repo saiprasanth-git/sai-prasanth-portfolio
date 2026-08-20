@@ -289,6 +289,7 @@
                   </p>
                 </div>
                 <dl class="kv" id="fingerKv"></dl>
+                <div class="prose" id="availability"></div>
               </div>
             </div>
           </article>
@@ -296,12 +297,13 @@
           <article class="pane">
             <div class="pane__bar">
               <span class="pane__dots"><i></i><i></i><i></i></span>
-              <span class="pane__title"><b>curl</b> -s /links</span>
+              <span class="pane__title"><b>jq</b> -r .links.json</span>
               <span class="pane__tag">links</span>
             </div>
             <div class="pane__body">
-              <p class="cmd">curl -s https://sai.dev/links | jq -r '.[]'</p>
+              <p class="cmd">cat ~/.links.json | jq -r '.[] | .url'</p>
               <div class="link-list" id="linkList"></div>
+              <div class="sig" id="signature"></div>
             </div>
           </article>
         </section>

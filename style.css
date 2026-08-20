@@ -1002,6 +1002,17 @@ pre.block {
 .link-row:hover .link-row__go {
   color: var(--phos);
 }
+.sig {
+  margin-top: var(--s6);
+  border-top: 1px dashed var(--line-soft);
+  padding-top: var(--s4);
+}
+.sig .cmd {
+  margin-bottom: var(--s3);
+}
+.sig pre.block {
+  margin-bottom: 0;
+}
 
 /* ---------------------------------------------------------------
    hint bar
@@ -1062,7 +1073,7 @@ kbd {
 @media (max-width: 1080px) {
   #ws-home {
     grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: auto auto auto;
+    grid-template-rows: none;
   }
   #ws-home .pane--id {
     grid-row: auto;
@@ -1086,10 +1097,10 @@ kbd {
     display: grid;
   }
   .pane {
-    min-height: 220px;
+    min-height: 0;
   }
   .pane--tty {
-    min-height: 300px;
+    min-height: 340px;
   }
   .pane__body {
     overflow: visible;
@@ -1102,9 +1113,29 @@ kbd {
 @media (max-width: 720px) {
   :root {
     --bar-h: 32px;
+    --text-base: 0.8rem;
+    --text-sm: 0.75rem;
+    --text-xs: 0.7rem;
+    --text-lg: 0.95rem;
   }
   body {
-    font-size: 0.9rem;
+    font-size: 0.8rem;
+  }
+  .hero__role {
+    font-size: 0.95rem;
+  }
+  .hero__art {
+    font-size: 4.6px;
+  }
+  .ws-btn {
+    padding: 0 var(--s2);
+    font-size: 0.66rem;
+  }
+  .bar__brand {
+    padding: 0 var(--s2);
+  }
+  .bar__brand span {
+    font-size: 0.66rem;
   }
   .desk {
     padding: var(--s2);

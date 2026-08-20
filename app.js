@@ -57,10 +57,6 @@
       boot.hidden = true;
       shell.hidden = false;
       shell.classList.add('is-in');
-      if (window.innerWidth > 1080) {
-        const input = $('#ttyIn');
-        if (input) setTimeout(() => input.focus({ preventScroll: true }), 500);
-      }
     };
     if (instant || reduced) reveal();
     else {
@@ -150,9 +146,13 @@
       '<span class="ls__name"><b>' +
       esc(p.file) +
       '/</b><span>' +
-      esc(p.lang) +
-      ' · ' +
-      esc(p.tags.slice(0, 2).join(' · ')) +
+      esc(
+        [p.lang]
+          .concat(
+            p.tags.filter((t) => t.toLowerCase() !== p.lang.toLowerCase()).slice(0, 2)
+          )
+          .join(' · ')
+      ) +
       '</span></span>' +
       '<span class="ls__meta">' +
       esc(p.size) +
@@ -304,14 +304,15 @@
 
   /* ---------- contact ---------- */
   $('#mailArt').textContent = [
-    '  ┌───────────────────────────────────────┐',
-    '  │  ╲                                 ╱  │',
-    '  │    ╲                             ╱    │',
-    '  │      ╲                         ╱      │',
-    '  │        ╲___________________ ╱         │',
-    '  │                                       │',
-    '  │   sai prasanth · backend & ai eng.    │',
-    '  └───────────────────────────────────────┘',
+    '+-------------------------------------------+',
+    '|\\                                         /|',
+    '| \\                                       / |',
+    '|  \\                                     /  |',
+    '|   \\___________________________________/   |',
+    '|                                           |',
+    '|   sai prasanth . backend & ai engineer    |',
+    '|   prasanthgrandhisiri@gmail.com           |',
+    '+-------------------------------------------+',
   ].join('\n');
 
   $('#fingerKv').innerHTML = [
@@ -324,6 +325,29 @@
   ]
     .map(([k, v]) => '<dt>' + esc(k) + '</dt><dd>' + esc(v) + '</dd>')
     .join('');
+
+  $('#availability').innerHTML =
+    '<h3>good fits</h3>' +
+    '<ul>' +
+    [
+      'Agent systems that need to be reliable, observable and auditable — not demos.',
+      'Python and FastAPI backends with PostgreSQL, plus the ETL feeding them.',
+      'Taking a working prototype and giving it tests, types, CI and a Dockerfile.',
+      'Traceability and evidence tooling for regulated or safety-critical programmes.',
+    ]
+      .map((x) => '<li>' + esc(x) + '</li>')
+      .join('') +
+    '</ul>';
+
+  $('#signature').innerHTML =
+    '<p class="cmd">cat ~/.signature</p>' +
+    '<pre class="block">-- \n' +
+    esc(IDENTITY.name) +
+    '\n' +
+    esc(IDENTITY.role) +
+    '\n' +
+    esc(IDENTITY.location) +
+    '\n\nkey  1F3C 02A7 B9E4 15C4  D8A7 72E6 B930 9FA1\nttl  replies usually inside 24h\n</pre>';
 
   const LINKS = [
     ['github', IDENTITY.handle, IDENTITY.github],
@@ -644,10 +668,16 @@
      =========================================================== */
   const clock = $('#clock');
   function tick() {
-    const d = new Date();
-    const p = (n) => String(n).padStart(2, '0');
-    clock.textContent =
-      p(d.getHours()) + ':' + p(d.getMinutes()) + ':' + p(d.getSeconds()) + ' CDT';
+    let t;
+    try {
+      t = new Date().toLocaleTimeString('en-GB', {
+        timeZone: 'America/Chicago',
+        hour12: false,
+      });
+    } catch (err) {
+      t = new Date().toTimeString().slice(0, 8);
+    }
+    clock.textContent = t + ' CT';
   }
   tick();
   setInterval(tick, 1000);
