@@ -14,7 +14,7 @@
   /* ===========================================================
      1. Boot sequence
      =========================================================== */
-  const BOOT_LINES = [
+  const BOOT_LINES_A = [
     ['    ', 0],
     ['<b>archbox</b> BIOS v2.19 — Phosphor Systems, Inc.', 40],
     ['Memory test: 65536K OK', 40],
@@ -32,6 +32,10 @@
     ['[    1.398772] traceguard: requirements trace verified, 0 findings', 45],
     ['[    1.560214] qsim: engines cross-verified to 2.2e-16', 45],
     ['[    1.741903] Starting portfolio.service ................. <span class="ok">[  OK  ]</span>', 70],
+    ['[    1.889447] Starting geo-locate.service .................. <span class="ok">[  OK  ]</span>', 50],
+  ];
+
+  const BOOT_LINES_B = [
     ['', 30],
     ['Arch Linux 6.9.4-arch1 (tty1)', 60],
     ['', 20],
@@ -44,15 +48,26 @@
   const boot = $('#boot');
   const bootLog = $('#bootLog');
   const bootSkip = $('#bootSkip');
+  const galaxyWrap = $('#bootGalaxy');
+  const galaxyCanvas = $('#galaxyCanvas');
+  const galaxyLabel = $('#galaxyLabel');
+  const galaxySub = $('#galaxySub');
   const shell = $('#shell');
   let booted = false;
   let bootTimer = null;
+  let skipped = false;
+  let galaxyStop = null;
 
   function finishBoot(instant) {
     if (booted) return;
     booted = true;
     clearTimeout(bootTimer);
     document.removeEventListener('keydown', skipOnKey);
+    if (galaxyStop) {
+      galaxyStop();
+      galaxyStop = null;
+    }
+    galaxyWrap.hidden = true;
     const reveal = () => {
       boot.hidden = true;
       shell.hidden = false;
@@ -67,17 +82,22 @@
 
   function skipOnKey(e) {
     if (e.key === 'Tab') return;
+    skipped = true;
     finishBoot(true);
   }
 
-  function runBoot() {
+  function runLines(lines, onDone) {
     let i = 0;
     const step = () => {
-      if (i >= BOOT_LINES.length) {
-        bootTimer = setTimeout(() => finishBoot(false), 320);
+      if (skipped) {
+        onDone();
         return;
       }
-      const [html, delay] = BOOT_LINES[i++];
+      if (i >= lines.length) {
+        bootTimer = setTimeout(onDone, 180);
+        return;
+      }
+      const [html, delay] = lines[i++];
       bootLog.insertAdjacentHTML('beforeend', html + '\n');
       bootLog.scrollTop = bootLog.scrollHeight;
       bootTimer = setTimeout(step, delay);
@@ -85,7 +105,248 @@
     step();
   }
 
-  bootSkip.addEventListener('click', () => finishBoot(true));
+  const GEO_LOCK_LINE =
+    '[    2.061880] geo: satellite fix acquired — <span class="ok">Stafford, TX (29.62°N, 95.56°W)</span>';
+
+  function runBoot() {
+    runLines(BOOT_LINES_A, () => {
+      if (skipped) {
+        finishBoot(true);
+        return;
+      }
+      runGalaxy(() => {
+        if (skipped) {
+          finishBoot(true);
+          return;
+        }
+        bootLog.insertAdjacentHTML('beforeend', GEO_LOCK_LINE + '\n');
+        bootLog.scrollTop = bootLog.scrollHeight;
+        runLines(BOOT_LINES_B, () => finishBoot(false));
+      });
+    });
+  }
+
+  /* ---- galaxy → earth → Stafford zoom sequence ---- */
+  function runGalaxy(done) {
+    if (reduced) {
+      done();
+      return;
+    }
+    galaxyWrap.hidden = false;
+    const ctx = galaxyCanvas.getContext('2d');
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+    function resize() {
+      const w = galaxyWrap.clientWidth,
+        h = galaxyWrap.clientHeight;
+      galaxyCanvas.width = Math.max(1, w * dpr);
+      galaxyCanvas.height = Math.max(1, h * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    const PHOS = '#6cf07c',
+      PHOS_MID = '#4ab962',
+      AMBER = '#fbb336',
+      FG_DIM = '#89988d';
+
+    const stars = Array.from({ length: 80 }, () => ({
+      x: Math.random() - 0.5,
+      y: Math.random() - 0.5,
+      r: Math.random() * 1.1 + 0.3,
+      p: Math.random() * Math.PI * 2,
+    }));
+
+    const SEGMENTS = [
+      { dur: 460, label: 'SOL SYSTEM', sub: 'scanning ephemeris…' },
+      { dur: 380, label: 'EARTH', sub: '3rd planet · locking orbit' },
+      { dur: 340, label: 'NORTH AMERICA', sub: 'continent resolved' },
+      { dur: 300, label: 'TEXAS', sub: 'state resolved' },
+      { dur: 360, label: 'STAFFORD, TX', sub: '29.62°N 95.56°W · lock acquired' },
+    ];
+    const totalDur = SEGMENTS.reduce((a, s) => a + s.dur, 0);
+
+    let segIndex = -1;
+    let start = null;
+    let raf = null;
+    let cancelled = false;
+
+    function ease(t) {
+      return 1 - Math.pow(1 - t, 3);
+    }
+
+    function setLabel(seg) {
+      galaxyLabel.textContent = seg.label;
+      galaxySub.textContent = seg.sub;
+      galaxyLabel.classList.remove('is-in');
+      galaxySub.classList.remove('is-in');
+      requestAnimationFrame(() => {
+        galaxyLabel.classList.add('is-in');
+        galaxySub.classList.add('is-in');
+      });
+    }
+
+    function draw(idx, local, globalT) {
+      const w = galaxyWrap.clientWidth,
+        h = galaxyWrap.clientHeight;
+      ctx.clearRect(0, 0, w, h);
+      ctx.fillStyle = '#020503';
+      ctx.fillRect(0, 0, w, h);
+      const cx = w / 2,
+        cy = h / 2;
+
+      const warp = idx > 0 ? Math.min(1, globalT * 1.6) : 0;
+      stars.forEach((s) => {
+        const tw = 0.5 + 0.5 * Math.sin(globalT * 9 + s.p);
+        const k = 1 + warp * 1.6;
+        const sx = cx + s.x * w * k;
+        const sy = cy + s.y * h * k;
+        ctx.beginPath();
+        ctx.fillStyle = 'rgba(207,222,209,' + (0.12 + 0.35 * tw) + ')';
+        ctx.arc(sx, sy, s.r, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      if (idx === 0) {
+        const grow = ease(Math.min(1, local * 2.2));
+        ctx.beginPath();
+        ctx.fillStyle = AMBER;
+        ctx.shadowColor = AMBER;
+        ctx.shadowBlur = 18;
+        ctx.arc(cx, cy, 9 * grow, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        const orbits = [
+          { r: 26, pr: 2.1, col: FG_DIM, speed: 2.6 },
+          { r: 42, pr: 3.2, col: PHOS, speed: 1.8 },
+          { r: 60, pr: 2.5, col: FG_DIM, speed: 1.2 },
+          { r: 80, pr: 2.8, col: AMBER, speed: 0.85 },
+        ];
+        orbits.forEach((o, i) => {
+          ctx.beginPath();
+          ctx.strokeStyle = 'rgba(137,152,141,0.22)';
+          ctx.lineWidth = 1;
+          ctx.arc(cx, cy, o.r * grow, 0, Math.PI * 2);
+          ctx.stroke();
+          const ang = globalT * Math.PI * 2 * o.speed + i * 1.7;
+          const px = cx + Math.cos(ang) * o.r * grow;
+          const py = cy + Math.sin(ang) * o.r * grow * 0.55;
+          ctx.beginPath();
+          ctx.fillStyle = o.col;
+          ctx.arc(px, py, o.pr, 0, Math.PI * 2);
+          ctx.fill();
+        });
+        return;
+      }
+
+      const stageProgress = (idx - 1 + local) / (SEGMENTS.length - 1);
+      const radius = 34 + stageProgress * Math.min(w, h) * 0.62;
+
+      ctx.beginPath();
+      ctx.fillStyle = 'rgba(25,92,46,0.32)';
+      ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = PHOS_MID;
+      ctx.lineWidth = 1.3;
+      ctx.stroke();
+
+      ctx.strokeStyle = 'rgba(108,240,124,0.32)';
+      ctx.lineWidth = 1;
+      for (let i = -2; i <= 2; i++) {
+        ctx.beginPath();
+        ctx.ellipse(cx, cy, radius, radius * Math.abs(Math.cos(i * 0.5)), 0, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+      for (let i = 0; i < 4; i++) {
+        const a = (i / 4) * Math.PI + globalT * 0.5;
+        ctx.beginPath();
+        ctx.ellipse(cx, cy, radius * Math.abs(Math.sin(a)), radius, 0, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+
+      const tx = cx + (1 - stageProgress) * w * 0.16;
+      const ty = cy - (1 - stageProgress) * h * 0.12;
+      const reticle = 13 + stageProgress * 9;
+
+      ctx.strokeStyle = AMBER;
+      ctx.lineWidth = 1.3;
+      ctx.beginPath();
+      ctx.moveTo(tx - reticle, ty);
+      ctx.lineTo(tx - reticle * 0.4, ty);
+      ctx.moveTo(tx + reticle * 0.4, ty);
+      ctx.lineTo(tx + reticle, ty);
+      ctx.moveTo(tx, ty - reticle);
+      ctx.lineTo(tx, ty - reticle * 0.4);
+      ctx.moveTo(tx, ty + reticle * 0.4);
+      ctx.lineTo(tx, ty + reticle);
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.strokeStyle = 'rgba(251,179,54,0.5)';
+      ctx.arc(tx, ty, reticle * 0.62, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.fillStyle = AMBER;
+      ctx.arc(tx, ty, 2, 0, Math.PI * 2);
+      ctx.fill();
+
+      if (idx === SEGMENTS.length - 1 && local > 0.55) {
+        const flash = (local - 0.55) / 0.45;
+        ctx.beginPath();
+        ctx.strokeStyle = 'rgba(108,240,124,' + flash + ')';
+        ctx.lineWidth = 2;
+        ctx.arc(tx, ty, reticle * (1.5 + flash * 0.5), 0, Math.PI * 2);
+        ctx.stroke();
+      }
+    }
+
+    function frame(ts) {
+      if (cancelled) return;
+      if (!start) start = ts;
+      const elapsed = ts - start;
+      let acc = 0,
+        idx = 0,
+        local = 0,
+        found = false;
+      for (; idx < SEGMENTS.length; idx++) {
+        if (elapsed < acc + SEGMENTS[idx].dur) {
+          local = (elapsed - acc) / SEGMENTS[idx].dur;
+          found = true;
+          break;
+        }
+        acc += SEGMENTS[idx].dur;
+      }
+      if (!found) {
+        stop();
+        done();
+        return;
+      }
+      if (idx !== segIndex) {
+        segIndex = idx;
+        setLabel(SEGMENTS[idx]);
+      }
+      draw(idx, Math.min(1, Math.max(0, local)), Math.min(1, elapsed / totalDur));
+      raf = requestAnimationFrame(frame);
+    }
+
+    function stop() {
+      cancelled = true;
+      if (raf) cancelAnimationFrame(raf);
+      window.removeEventListener('resize', resize);
+      galaxyWrap.hidden = true;
+      galaxyLabel.classList.remove('is-in');
+      galaxySub.classList.remove('is-in');
+    }
+
+    galaxyStop = stop;
+    raf = requestAnimationFrame(frame);
+  }
+
+  bootSkip.addEventListener('click', () => {
+    skipped = true;
+    finishBoot(true);
+  });
   document.addEventListener('keydown', skipOnKey);
   if (reduced) finishBoot(true);
   else runBoot();
