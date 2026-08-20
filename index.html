@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sai Prasanth — Backend &amp; AI Engineer</title>
+    <meta
+      name="description"
+      content="Portfolio of Sai Prasanth, backend and AI engineer. Production LLM agents with LangChain, Google ADK and AWS Bedrock, Python and FastAPI services, ETL pipelines, and DO-178C-style traceability tooling."
+    />
+    <meta name="theme-color" content="#0c1310" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Sai Prasanth — Backend & AI Engineer" />
+    <meta
+      property="og:description"
+      content="Production LLM agents, Python services, and safety-critical tooling. A terminal you can actually type in."
+    />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230c1310'/%3E%3Cpath d='M9 10l5 6-5 6' stroke='%237de89a' stroke-width='2.6' fill='none' stroke-linecap='square'/%3E%3Crect x='17' y='19' width='7' height='3' fill='%237de89a'/%3E%3C/svg%3E"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=VT323&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./base.css" />
+    <link rel="stylesheet" href="./style.css" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Person",
+        "name": "Sai Prasanth",
+        "jobTitle": "Backend & AI Engineer",
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "Stafford",
+          "addressRegion": "TX",
+          "addressCountry": "US"
+        },
+        "email": "mailto:prasanthgrandhisiri@gmail.com",
+        "sameAs": ["https://github.com/saiprasanth-git"],
+        "knowsAbout": [
+          "Python",
+          "FastAPI",
+          "LangChain",
+          "AWS Bedrock",
+          "PostgreSQL",
+          "ETL",
+          "DO-178C"
+        ]
+      }
+    </script>
+  </head>
+
+  <body>
+    <a class="skip-link" href="#desk">Skip to content</a>
+
+    <!-- ============================ boot ============================ -->
+    <div class="boot" id="boot">
+      <pre class="boot__log" id="bootLog" aria-hidden="true"></pre>
+      <button class="boot__skip" id="bootSkip" type="button">
+        press any key to skip boot
+      </button>
+    </div>
+
+    <!-- ============================ shell =========================== -->
+    <div class="shell" id="shell" hidden>
+      <!-- ---------- status bar ---------- -->
+      <header class="bar">
+        <div class="bar__brand">
+          <svg viewBox="0 0 32 32" aria-label="Sai Prasanth logo" role="img">
+            <title>Sai Prasanth</title>
+            <path
+              d="M9 9l6 7-6 7"
+              stroke="currentColor"
+              stroke-width="2.8"
+              fill="none"
+              stroke-linecap="square"
+            />
+            <rect x="18" y="20" width="8" height="3" fill="currentColor" />
+          </svg>
+          <span><b>sai</b>@archbox</span>
+        </div>
+
+        <nav class="ws-list" id="wsList" aria-label="Workspaces">
+          <button class="ws-btn" data-ws="home" aria-current="true">
+            <i>1</i>~
+          </button>
+          <button class="ws-btn" data-ws="projects"><i>2</i>projects</button>
+          <button class="ws-btn" data-ws="stack"><i>3</i>stack</button>
+          <button class="ws-btn" data-ws="about"><i>4</i>about</button>
+          <button class="ws-btn" data-ws="contact"><i>5</i>contact</button>
+        </nav>
+
+        <div class="bar__spacer"></div>
+
+        <div class="bar__right">
+          <div class="widget widget--hide" title="Public repositories">
+            <span>repos</span><b>14</b>
+          </div>
+          <div class="widget widget--hide" title="Simulated load">
+            <span>cpu</span>
+            <span class="meter" id="meterCpu" aria-hidden="true"></span>
+          </div>
+          <div class="widget widget--amber" title="Location">
+            <b id="clock">--:--:--</b>
+          </div>
+        </div>
+      </header>
+
+      <!-- ---------- desktop ---------- -->
+      <main class="desk" id="desk">
+        <!-- ========== 1: home ========== -->
+        <section class="ws is-active" id="ws-home" aria-label="Home">
+          <article class="pane pane--id">
+            <div class="pane__bar">
+              <span class="pane__dots"><i></i><i></i><i></i></span>
+              <span class="pane__title"><b>sai@archbox</b>:~ — neofetch</span>
+              <span class="pane__tag">1</span>
+            </div>
+            <div class="pane__body">
+              <div class="hero">
+                <h1 class="hero__art" id="heroArt" aria-label="Sai Prasanth"></h1>
+                <div>
+                  <p class="hero__role">
+                    Backend &amp; AI Engineer <em>·</em> Stafford, TX
+                  </p>
+                  <p class="hero__tag" id="heroTag"></p>
+                </div>
+                <div class="neo">
+                  <pre class="neo__tux" id="tux" aria-hidden="true"></pre>
+                  <div>
+                    <dl class="neo__list" id="neoList"></dl>
+                    <div class="neo__swatch" aria-hidden="true">
+                      <i style="background: var(--bg)"></i>
+                      <i style="background: var(--pane-hi)"></i>
+                      <i style="background: var(--phos-deep)"></i>
+                      <i style="background: var(--phos-mid)"></i>
+                      <i style="background: var(--phos)"></i>
+                      <i style="background: var(--amber-deep)"></i>
+                      <i style="background: var(--amber)"></i>
+                      <i style="background: var(--fg)"></i>
+                    </div>
+                  </div>
+                </div>
+                <div class="cta-row">
+                  <a
+                    class="btn btn--go"
+                    href="https://github.com/saiprasanth-git"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+                      <path
+                        d="M8 0a8 8 0 00-2.53 15.59c.4.07.55-.17.55-.38v-1.34c-2.23.48-2.7-1.07-2.7-1.07-.36-.93-.89-1.18-.89-1.18-.73-.5.05-.49.05-.49.8.06 1.23.83 1.23.83.71 1.22 1.87.87 2.33.67.07-.52.28-.87.5-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.6 7.6 0 014 0c1.53-1.03 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.28.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48v2.19c0 .21.14.46.55.38A8 8 0 008 0z"
+                      />
+                    </svg>
+                    github/saiprasanth-git
+                  </a>
+                  <button class="btn" data-goto="projects" type="button">
+                    ls ~/projects
+                  </button>
+                  <a class="btn" href="mailto:prasanthgrandhisiri@gmail.com">
+                    mail -s "hello"
+                  </a>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="pane">
+            <div class="pane__bar">
+              <span class="pane__dots"><i></i><i></i><i></i></span>
+              <span class="pane__title"
+                ><b>git</b> log --oneline --all --since=1.year</span
+              >
+              <span class="pane__tag">activity</span>
+            </div>
+            <div class="pane__body">
+              <p class="cmd">git log --oneline --date=short --all</p>
+              <div class="log" id="logList"></div>
+            </div>
+          </article>
+
+          <article class="pane pane--tty" id="ttyPane">
+            <div class="pane__bar">
+              <span class="pane__dots"><i></i><i></i><i></i></span>
+              <span class="pane__title"><b>zsh</b> — interactive</span>
+              <span class="pane__tag">try: help</span>
+            </div>
+            <div class="pane__body pane__body--flush">
+              <div class="tty">
+                <div
+                  class="tty__out"
+                  id="ttyOut"
+                  role="log"
+                  aria-live="polite"
+                ></div>
+                <div class="tty__quick" id="ttyQuick" aria-label="Quick commands"></div>
+                <form class="tty__form" id="ttyForm">
+                  <span class="tty__ps1" aria-hidden="true">sai@archbox:~$</span>
+                  <label class="skip-link" for="ttyIn">Terminal command</label>
+                  <input
+                    class="tty__in"
+                    id="ttyIn"
+                    type="text"
+                    autocomplete="off"
+                    spellcheck="false"
+                    placeholder="type a command, or `help`"
+                  />
+                </form>
+              </div>
+            </div>
+          </article>
+        </section>
+
+        <!-- ========== 2: projects ========== -->
+        <section class="ws" id="ws-projects" aria-label="Projects">
+          <article class="pane">
+            <div class="pane__bar">
+              <span class="pane__dots"><i></i><i></i><i></i></span>
+              <span class="pane__title"><b>ls</b> -la ~/projects</span>
+              <span class="pane__tag" id="lsCount"></span>
+            </div>
+            <div class="pane__body pane__body--flush">
+              <div class="ls" id="lsList" role="listbox" aria-label="Project list"></div>
+            </div>
+          </article>
+
+          <article class="pane">
+            <div class="pane__bar">
+              <span class="pane__dots"><i></i><i></i><i></i></span>
+              <span class="pane__title" id="detailTitle"><b>less</b> README.md</span>
+              <span class="pane__tag">readme</span>
+            </div>
+            <div class="pane__body" id="detailBody"></div>
+          </article>
+        </section>
+
+        <!-- ========== 3: stack ========== -->
+        <section class="ws" id="ws-stack" aria-label="Stack"></section>
+
+        <!-- ========== 4: about ========== -->
+        <section class="ws" id="ws-about" aria-label="About">
+          <article class="pane">
+            <div class="pane__bar">
+              <span class="pane__dots"><i></i><i></i><i></i></span>
+              <span class="pane__title"><b>cat</b> ~/about.md</span>
+              <span class="pane__tag">about</span>
+            </div>
+            <div class="pane__body">
+              <p class="cmd">cat ~/about.md</p>
+              <div class="prose" id="aboutBody"></div>
+            </div>
+          </article>
+
+          <article class="pane">
+            <div class="pane__bar">
+              <span class="pane__dots"><i></i><i></i><i></i></span>
+              <span class="pane__title"><b>history</b> | tail -20</span>
+              <span class="pane__tag">timeline</span>
+            </div>
+            <div class="pane__body">
+              <p class="cmd">history --by-year</p>
+              <div class="tl" id="tlList"></div>
+            </div>
+          </article>
+        </section>
+
+        <!-- ========== 5: contact ========== -->
+        <section class="ws" id="ws-contact" aria-label="Contact">
+          <article class="pane">
+            <div class="pane__bar">
+              <span class="pane__dots"><i></i><i></i><i></i></span>
+              <span class="pane__title"><b>finger</b> sai</span>
+              <span class="pane__tag">card</span>
+            </div>
+            <div class="pane__body">
+              <div class="card">
+                <pre class="card__art" id="mailArt" aria-hidden="true"></pre>
+                <div class="prose">
+                  <h3>get in touch</h3>
+                  <p>
+                    Open to backend and AI engineering work — agent systems,
+                    Python services, data pipelines, and the tooling that keeps
+                    them honest. Email is the fastest route; I read everything.
+                  </p>
+                </div>
+                <dl class="kv" id="fingerKv"></dl>
+              </div>
+            </div>
+          </article>
+
+          <article class="pane">
+            <div class="pane__bar">
+              <span class="pane__dots"><i></i><i></i><i></i></span>
+              <span class="pane__title"><b>curl</b> -s /links</span>
+              <span class="pane__tag">links</span>
+            </div>
+            <div class="pane__body">
+              <p class="cmd">curl -s https://sai.dev/links | jq -r '.[]'</p>
+              <div class="link-list" id="linkList"></div>
+            </div>
+          </article>
+        </section>
+      </main>
+
+      <!-- ---------- hint bar ---------- -->
+      <footer class="hint">
+        <span><kbd>1</kbd><kbd>-</kbd><kbd>5</kbd> switch workspace</span>
+        <span><kbd>j</kbd><kbd>k</kbd> move in list</span>
+        <span><kbd>/</kbd> focus shell</span>
+        <span><b>help</b> in the shell for commands</span>
+        <span id="hintWs">ws: ~</span>
+      </footer>
+    </div>
+
+    <div class="crt-glow" aria-hidden="true"></div>
+    <div class="crt" aria-hidden="true"></div>
+
+    <script src="./data.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>
