@@ -560,6 +560,58 @@
     introDone = true;
     startBootSequence();
   } else {
+    /* -----------------------------------------------------------
+       Align the interactive rope with the rope painted into the
+       artwork. The scene uses object-fit: cover, so on any viewport
+       that isn't 16:9 the painting is cropped and the painted rope
+       slides sideways — a fixed CSS percentage would drift off it and
+       read as two ropes. These are the rope's measured coordinates in
+       scene1 (cord x = 74.7% of width, brass weight y = 44.4% of
+       height), projected through the cover transform on every resize.
+       ----------------------------------------------------------- */
+    const ROPE_U = 0.747;
+    const ROPE_V = 0.444;
+    const SCENE_AR = 1600 / 900;
+    const HANDLE_HALF = 10;
+
+    function alignRope() {
+      if (!aiRope) return;
+      const W = animeIntro.clientWidth;
+      const H = animeIntro.clientHeight;
+      if (!W || !H) return;
+      /* object-fit: cover with the default 50% 50% object-position */
+      const scale = Math.max(W / SCENE_AR, H) / H;
+      const sh = H * scale;
+      const sw = sh * SCENE_AR;
+      const offX = (W - sw) * 0.5;
+      const offY = (H - sh) * 0.5;
+      let x = offX + ROPE_U * sw;
+      const y = offY + ROPE_V * sh;
+
+      /* On portrait the cover crop is so aggressive that the painted rope is
+         cut out of frame entirely. In that case there is nothing to sit on
+         top of, so move the control somewhere thumb-reachable and let CSS
+         draw a full, opaque rope instead of a faint highlight. */
+      const EDGE = 56;
+      const paintedVisible = x > EDGE && x < W - EDGE;
+      if (!paintedVisible) x = W * 0.74;
+      aiRope.classList.toggle('ai__rope--drawn', !paintedVisible);
+
+      /* CSS keeps the negative margin that centres the button on `left` */
+      aiRope.style.left = x.toFixed(1) + 'px';
+      const ropeH = Math.max(140, Math.min(y + HANDLE_HALF, H * 0.62));
+      /* beat the stylesheet's min-height, which would otherwise push the
+         handle below the painted weight on short viewports */
+      aiRope.style.minHeight = '0px';
+      aiRope.style.height = ropeH.toFixed(1) + 'px';
+    }
+
+    alignRope();
+    window.addEventListener('resize', alignRope);
+    window.addEventListener('orientationchange', alignRope);
+    /* fonts/images settling can change the box before the first paint */
+    window.addEventListener('load', alignRope);
+
     if (aiRope) {
       aiRope.addEventListener('click', () => {
         if (animeIntro.dataset.phase !== 'dark') return;
