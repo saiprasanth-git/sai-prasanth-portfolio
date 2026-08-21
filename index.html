@@ -9,12 +9,32 @@
       content="Portfolio of Sai Prasanth, backend and AI engineer. Production LLM agents with LangChain, Google ADK and AWS Bedrock, Python and FastAPI services, ETL pipelines, and DO-178C-style traceability tooling."
     />
     <meta name="theme-color" content="#0c1310" />
+    <meta name="author" content="Sai Prasanth" />
+    <link rel="canonical" href="https://sai-prasanth-portfolio.vercel.app/" />
+
     <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Sai Prasanth" />
+    <meta property="og:url" content="https://sai-prasanth-portfolio.vercel.app/" />
     <meta property="og:title" content="Sai Prasanth — Backend & AI Engineer" />
     <meta
       property="og:description"
       content="Production LLM agents, Python services, and safety-critical tooling. A terminal you can actually type in."
     />
+    <meta property="og:image" content="https://sai-prasanth-portfolio.vercel.app/assets/og-cover.jpg" />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="Sai Prasanth, Backend and AI Engineer — anime illustration of a developer at a glowing monitor"
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Sai Prasanth — Backend & AI Engineer" />
+    <meta
+      name="twitter:description"
+      content="Production LLM agents, Python services, and safety-critical tooling. A terminal you can actually type in."
+    />
+    <meta name="twitter:image" content="https://sai-prasanth-portfolio.vercel.app/assets/og-cover.jpg" />
     <link
       rel="icon"
       href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230c1310'/%3E%3Cpath d='M9 10l5 6-5 6' stroke='%237de89a' stroke-width='2.6' fill='none' stroke-linecap='square'/%3E%3Crect x='17' y='19' width='7' height='3' fill='%237de89a'/%3E%3C/svg%3E"
@@ -22,8 +42,16 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=VT323&display=swap"
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap"
       rel="stylesheet"
+    />
+    <link
+      rel="preload"
+      as="image"
+      href="./assets/intro/scene1-piano-dark-1600.webp"
+      imagesrcset="./assets/intro/scene1-piano-dark-960.webp 960w, ./assets/intro/scene1-piano-dark-1600.webp 1600w"
+      imagesizes="100vw"
+      type="image/webp"
     />
     <link rel="stylesheet" href="./base.css" />
     <link rel="stylesheet" href="./style.css" />
@@ -60,9 +88,75 @@
     <!-- ====================== cinematic anime intro ================== -->
     <div class="anime-intro" id="animeIntro" data-phase="dark">
       <div class="ai__stage">
-        <img class="ai__img ai__img--dark" id="aiDark" src="./assets/intro/scene1-piano-dark.jpg" alt="" aria-hidden="true" />
-        <img class="ai__img ai__img--lit" id="aiLit" src="./assets/intro/scene2-piano-lit.jpg" alt="" aria-hidden="true" loading="lazy" />
-        <img class="ai__img ai__img--desk" id="aiDesk" src="./assets/intro/scene3-desk.jpg" alt="" aria-hidden="true" loading="lazy" />
+        <picture>
+          <source
+            type="image/webp"
+            srcset="./assets/intro/scene1-piano-dark-960.webp 960w, ./assets/intro/scene1-piano-dark-1600.webp 1600w"
+            sizes="100vw"
+          />
+          <img
+            class="ai__img ai__img--dark"
+            id="aiDark"
+            src="./assets/intro/scene1-piano-dark-1600.jpg"
+            srcset="./assets/intro/scene1-piano-dark-960.jpg 960w, ./assets/intro/scene1-piano-dark-1600.jpg 1600w"
+            sizes="100vw"
+            alt=""
+            aria-hidden="true"
+            fetchpriority="high"
+            decoding="async"
+          />
+        </picture>
+        <picture>
+          <source
+            type="image/webp"
+            srcset="./assets/intro/scene2-piano-lit-960.webp 960w, ./assets/intro/scene2-piano-lit-1600.webp 1600w"
+            sizes="100vw"
+          />
+          <img
+            class="ai__img ai__img--lit"
+            id="aiLit"
+            src="./assets/intro/scene2-piano-lit-1600.jpg"
+            srcset="./assets/intro/scene2-piano-lit-960.jpg 960w, ./assets/intro/scene2-piano-lit-1600.jpg 1600w"
+            sizes="100vw"
+            alt=""
+            aria-hidden="true"
+            decoding="async"
+          />
+        </picture>
+        <picture>
+          <source
+            type="image/webp"
+            srcset="./assets/intro/scene2b-walking-960.webp 960w, ./assets/intro/scene2b-walking-1600.webp 1600w"
+            sizes="100vw"
+          />
+          <img
+            class="ai__img ai__img--walk"
+            id="aiWalk"
+            src="./assets/intro/scene2b-walking-1600.jpg"
+            srcset="./assets/intro/scene2b-walking-960.jpg 960w, ./assets/intro/scene2b-walking-1600.jpg 1600w"
+            sizes="100vw"
+            alt=""
+            aria-hidden="true"
+            decoding="async"
+          />
+        </picture>
+        <picture>
+          <source
+            type="image/webp"
+            srcset="./assets/intro/scene3-desk-960.webp 960w, ./assets/intro/scene3-desk-1600.webp 1600w"
+            sizes="100vw"
+          />
+          <img
+            class="ai__img ai__img--desk"
+            id="aiDesk"
+            src="./assets/intro/scene3-desk-1600.jpg"
+            srcset="./assets/intro/scene3-desk-960.jpg 960w, ./assets/intro/scene3-desk-1600.jpg 1600w"
+            sizes="100vw"
+            alt=""
+            aria-hidden="true"
+            decoding="async"
+          />
+        </picture>
         <div class="ai__spotlight" aria-hidden="true"></div>
         <div class="ai__bloom" aria-hidden="true"></div>
         <div class="ai__screenglow" aria-hidden="true"></div>
@@ -82,13 +176,178 @@
         <p class="ai__hint" id="aiHint">nocturne — pull the rope</p>
         <p class="ai__caption" id="aiCaption"></p>
       </div>
+
+      <button type="button" class="ai__skip" id="aiSkip">
+        Skip intro
+        <kbd>Esc</kbd>
+      </button>
+
+      <div class="ai__progress" id="aiProgress" aria-hidden="true"><span></span></div>
     </div>
 
-    <audio id="themeAudio" src="./assets/audio/theme.mp3" preload="auto" loop></audio>
-    <button type="button" class="music-toggle" id="musicToggle" aria-pressed="true" aria-label="Toggle background music">
+    <audio id="themeAudio" preload="none" loop>
+      <source src="./assets/audio/theme.m4a" type="audio/mp4" />
+      <source src="./assets/audio/theme.mp3" type="audio/mpeg" />
+    </audio>
+    <button type="button" class="music-toggle is-muted" id="musicToggle" aria-pressed="false" aria-label="Toggle background music">
       <span class="music-toggle__eq" id="musicEq" aria-hidden="true"><span></span><span></span><span></span></span>
-      <span id="musicLabel">Turn off music</span>
+      <span id="musicLabel">Turn on music</span>
     </button>
+
+    <!-- NOSCRIPT:START (generated by build-noscript.mjs — do not edit by hand) -->
+    <noscript>
+      <style>
+        #animeIntro,
+        #boot,
+        #shell,
+        .music-toggle,
+        .crt,
+        .crt-glow {
+          display: none !important;
+        }
+        html,
+        body {
+          overflow: auto !important;
+          height: auto !important;
+        }
+      </style>
+      <div class="noscript-fallback">
+        <header>
+          <h1>Sai Prasanth</h1>
+          <p>Backend &amp; AI Engineer &middot; Stafford, Texas, US</p>
+          <p>Production LLM agents, Python services, and safety-critical tooling.</p>
+          <p>
+            <a href="mailto:prasanthgrandhisiri@gmail.com">prasanthgrandhisiri@gmail.com</a>
+            &middot;
+            <a href="https://github.com/saiprasanth-git">github.com/saiprasanth-git</a>
+          </p>
+          <p>
+            This portfolio is an interactive terminal and needs JavaScript for the full
+            experience. The complete content is below.
+          </p>
+        </header>
+
+        <section>
+          <h2>About</h2>
+          <h3>whoami</h3>
+          <p>I am a backend and AI engineer. Most of my work sits in the unglamorous middle of a system: the service that has to stay up, the pipeline that has to be correct, the agent that has to do the right thing when nobody is watching it.</p>
+          <p>I build production LLM agents with LangChain, Google ADK and AWS Bedrock, served behind FastAPI and backed by PostgreSQL. Around that I build the boring parts properly — ETL with real validation, multi-stage Docker images, a CI pipeline that lints and type-checks and runs a version matrix before anything ships.</p>
+          <h3>why the safety-critical detour</h3>
+          <p>I keep coming back to correctness. TraceGuard came out of that: a DO-178C-style traceability gate that refuses to let requirements, code and verification evidence drift apart. Same instinct behind qsim — two independent engines, cross-verified to machine epsilon, because &quot;it looks right&quot; is not a test.</p>
+          <h3>how I work</h3>
+          <ul>
+            <li>Plain text next to the code. Requirements, docs and evidence should diff cleanly in Git.</li>
+            <li>Structured logging over print statements. Custom exceptions over bare raises.</li>
+            <li>Every project gets a README that a non-engineer can read and an architecture doc that an engineer can trust.</li>
+            <li>Automate the loop before optimising the step.</li>
+          </ul>
+          <h3>off the clock</h3>
+          <p>Quantum simulators, habit and focus tooling, embedded experiments, and taking apart other people's interfaces to see how they would work better.</p>
+        </section>
+
+        <section>
+          <h2>Projects</h2>
+        <article>
+          <h3>TraceGuard</h3>
+          <p><strong>Python, DO-178C, CI gate, Static analysis</strong></p>
+          <p>Requirements traceability gate for safety-critical software — fails the build when requirements, code and verification evidence drift apart.</p>
+          <p>TraceGuard reads requirement specifications, the @implements annotations in source code and the @verifies annotations in tests, resolves the bidirectional traceability graph, and fails the build when the trace is broken.</p>
+          <p>It turns &quot;we will do the traceability matrix before the audit&quot; into a CI check that runs on every commit. Everything lives in plain text next to the code, so requirements, code and verification evidence are reviewed together in the same pull request and diff cleanly in Git.</p>
+          <p>Built for DO-178C, IEC 62304 and ISO 26262 programmes, where the traceability data is a certification deliverable in its own right.</p>
+          <p><a href="https://github.com/saiprasanth-git/traceguard">Source on GitHub</a></p>
+        </article>
+        <article>
+          <h3>RepoMind</h3>
+          <p><strong>FastAPI, React, PostgreSQL, Gemini, RAG</strong></p>
+          <p>Talk to any GitHub repository like it is a senior engineer who knows every file. RAG vs long-context, benchmarked.</p>
+          <p>A codebase-aware AI assistant. Paste any public GitHub URL and ask questions about the code in plain English — answers come back with direct citations to exact files and line numbers.</p>
+          <p>It also ships a research experiment comparing two architectures for code understanding: retrieval-augmented generation over embedded chunks, versus sending an entire repository into a 2M-token long-context window.</p>
+          <p>Documented in three layers: a plain-English explainer, an architecture deep-dive, and the experiment write-up.</p>
+          <p><a href="https://github.com/saiprasanth-git/repomind">Source on GitHub</a></p>
+        </article>
+        <article>
+          <h3>qsim</h3>
+          <p><strong>Python, NumPy, JavaScript, Numerics</strong></p>
+          <p>A tiny, optimised, zero-dependency quantum circuit simulator with cross-verified Python and JavaScript engines.</p>
+          <p>A complete state-vector quantum computer simulator in two forms: a ~400-line Python engine that depends only on NumPy, and a ~130-line browser engine with no dependencies at all.</p>
+          <p>Both engines implement the same algorithm and are cross-verified to agree to 2.2 × 10⁻¹⁶ — machine epsilon — across 10 reference circuits.</p>
+          <p><a href="https://github.com/saiprasanth-git/quantum-simulator">Source on GitHub</a></p>
+        </article>
+        <article>
+          <h3>python-etl-pipeline</h3>
+          <p><strong>Python, Docker, GitHub Actions, pytest</strong></p>
+          <p>Production-style ETL pipeline: structured logging, schema validation, Docker multi-stage build, and a full GitHub Actions matrix.</p>
+          <p>A complete extract / transform / load pipeline with configurable sources, a custom exception hierarchy, and structured logging at every stage instead of print statements.</p>
+          <p><a href="https://github.com/saiprasanth-git/python-etl-pipeline">Source on GitHub</a></p>
+        </article>
+        <article>
+          <h3>DentalFlow Agent</h3>
+          <p><strong>Python, UiPath Maestro, Express, Agents</strong></p>
+          <p>Autonomous agent that monitors a dental practice appointment queue, detects exceptions and resolves them without a human. UiPath AgentHack 2026.</p>
+          <p>Built for UiPath AgentHack 2026, Track 1 (Maestro Case). The agent watches the appointment queue and closes the loop on the exceptions a front desk usually chases by phone.</p>
+          <p><a href="https://github.com/saiprasanth-git/dental-flow-agent">Source on GitHub</a></p>
+        </article>
+        <article>
+          <h3>SnapStore</h3>
+          <p><strong>React, TypeScript, Tailwind, Supabase, Stripe</strong></p>
+          <p>Turn a product photo into a live, shoppable storefront in seconds. AI listing generation plus Stripe checkout.</p>
+          <p>Upload a photo, describe the product, and an LLM writes the title, a 150-word description, a suggested price and five SEO tags. Buyers browse the storefront and pay through Stripe.</p>
+          <p><a href="https://github.com/saiprasanth-git/Snapstore">Source on GitHub</a> &middot; <a href="https://app-avjuc60bs16p.appmedo.com">Live demo</a></p>
+        </article>
+        <article>
+          <h3>Coffee Shop</h3>
+          <p><strong>React, Vite, Express, SQLite, Gemini</strong></p>
+          <p>Full-stack mobile-style ordering app: React + Express + SQLite, with an AI barista that recommends drinks.</p>
+          <p>A React (Vite) frontend against an Express backend with better-sqlite3 persistence, plus a Gemini-powered barista endpoint for recommendations.</p>
+          <p>Deployed on Vercel with a seeded SQLite database and an environment-driven Gemini key.</p>
+          <p><a href="https://github.com/saiprasanth-git/Coffee-Shop">Source on GitHub</a> &middot; <a href="https://coffee-shop-ecru-gamma.vercel.app">Live demo</a></p>
+        </article>
+        <article>
+          <h3>Solarcraft Redesign Concept</h3>
+          <p><strong>UX, Case study, Frontend</strong></p>
+          <p>A redesign concept and UX case study: modernised homepage plus an interactive product filter demo.</p>
+          <p>An unsolicited redesign of Solarcraft.net — a modernised homepage concept alongside a working interactive product filter, framed as a UX case study rather than a pitch deck.</p>
+          <p><a href="https://github.com/saiprasanth-git/solarcraft-redesign-concept">Source on GitHub</a></p>
+        </article>
+        <article>
+          <h3>nodejs-cicd-pipeline</h3>
+          <p><strong>Node.js, Docker, GitHub Actions</strong></p>
+          <p>Reference CI/CD pipeline for Node.js: automated tests, Docker containerisation and GitHub Actions.</p>
+          <p>The Node.js counterpart to the Python ETL pipeline — a minimal but complete reference for test → build → containerise → publish on every push.</p>
+          <p><a href="https://github.com/saiprasanth-git/nodejs-cicd-pipeline">Source on GitHub</a></p>
+        </article>
+        <article>
+          <h3>prior-auth-ai-agent</h3>
+          <p><strong>Python, Agents, Healthcare</strong></p>
+          <p>Prior authorisation automation agent built on the Prompt Opinion platform — Agents Assemble Hackathon.</p>
+          <p>A hackathon agent that automates the prior-authorisation paperwork loop between providers and payers.</p>
+          <p><a href="https://github.com/saiprasanth-git/prior-auth-ai-agent">Source on GitHub</a></p>
+        </article>
+        </section>
+
+        <section>
+          <h2>Stack</h2>
+          <ul>
+          <li><strong>core:</strong> Python 3.12, FastAPI 0.115, PostgreSQL 16, TypeScript 5.x, React 18, Node.js / Express 20</li>
+          <li><strong>ai / agents:</strong> LangChain oss, Google ADK python, AWS Bedrock, RAG + embeddings pgvector, Gemini / long-context 1.5 Pro, UiPath Maestro</li>
+          <li><strong>platform:</strong> Docker multi-stage, GitHub Actions CI/CD, AWS, Vercel / Render, Google Cloud Run, Supabase</li>
+          <li><strong>rigour:</strong> pytest + coverage, mypy / flake8 / black, ETL pipeline design, DO-178C / IEC 62304 traceability, REXX mainframe, Embedded C/C++</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Experience</h2>
+          <ul>
+          <li><strong>2026</strong> &mdash; TraceGuard — DO-178C-style traceability gate. qsim quantum simulator. Agent work across UiPath AgentHack and Agents Assemble.</li>
+          <li><strong>2026</strong> &mdash; RepoMind — codebase-aware assistant on FastAPI + React + PostgreSQL, deployed to Cloud Run. RAG vs long-context benchmarked.</li>
+          <li><strong>2026</strong> &mdash; ETL and CI/CD reference pipelines in Python and Node.js — Docker, Actions matrices, coverage gates.</li>
+          <li><strong>2025</strong> &mdash; Full-stack product work: Coffee Shop on Vercel, SnapStore storefront generator. React + TypeScript front ends over Express services.</li>
+          <li><strong>2019</strong> &mdash; First commit on GitHub.</li>
+          </ul>
+        </section>
+      </div>
+    </noscript>
+    <!-- NOSCRIPT:END -->
 
     <!-- ============================ boot ============================ -->
     <div class="boot" id="boot" hidden>

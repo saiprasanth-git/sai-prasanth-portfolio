@@ -72,6 +72,12 @@
       boot.hidden = true;
       shell.hidden = false;
       shell.classList.add('is-in');
+      /* Deferred by a tick on purpose: with prefers-reduced-motion this
+         reveal runs synchronously during initial script evaluation, before
+         the routing tables further down have been initialised. Waiting for
+         the current script to finish avoids a TDZ error, and it also keeps
+         setup-time go()/selectProject() calls out of history. */
+      setTimeout(startRouting, 0);
     };
     if (instant || reduced) reveal();
     else {
@@ -328,94 +334,167 @@
   const themeAudio = $('#themeAudio');
   const musicToggle = $('#musicToggle');
   const musicLabel = $('#musicLabel');
+  const aiSkip = $('#aiSkip');
+  const aiProgress = $('#aiProgress');
   const MUSIC_VOLUME = 0.55;
-  let audioMuted = false;
+  const INTRO_SEEN_KEY = 'sp:introSeen:v2';
+  const MUSIC_PREF_KEY = 'sp:music';
+
+  /* localStorage is blocked in some sandboxed/embedded contexts — never let it throw */
+  const store = {
+    get(k) {
+      try {
+        return window.localStorage.getItem(k);
+      } catch (_) {
+        return null;
+      }
+    },
+    set(k, v) {
+      try {
+        window.localStorage.setItem(k, v);
+      } catch (_) {
+        /* ignore */
+      }
+    },
+  };
+
+  /* Start MUTED and only report "playing" once playback is actually confirmed,
+     so the button label can never lie about the real audio state. */
+  let audioMuted = store.get(MUSIC_PREF_KEY) !== 'on';
   let audioArmed = false;
 
+  function syncMusicUi() {
+    if (!musicToggle) return;
+    const on = audioArmed && !audioMuted;
+    musicToggle.classList.toggle('is-muted', !on);
+    musicToggle.setAttribute('aria-pressed', String(on));
+    if (musicLabel) musicLabel.textContent = on ? 'Turn off music' : 'Turn on music';
+  }
+
+  let fadeToken = 0;
   function fadeVolume(el, to, duration, done) {
+    const token = ++fadeToken;
     const from = el.volume;
+    const target = Math.min(1, Math.max(0, to));
     const t0 = performance.now();
     function step(ts) {
-      const t = Math.min(1, (ts - t0) / duration);
-      el.volume = from + (to - from) * t;
+      /* a newer fade supersedes this one — otherwise two fades fight and
+         can drive volume out of the legal [0,1] range */
+      if (token !== fadeToken) return;
+      const t = Math.min(1, Math.max(0, (ts - t0) / duration));
+      const v = from + (target - from) * t;
+      el.volume = Math.min(1, Math.max(0, v));
       if (t < 1) requestAnimationFrame(step);
       else if (done) done();
     }
     requestAnimationFrame(step);
   }
 
-  function armAudio() {
-    if (audioArmed || audioMuted || !themeAudio) return;
-    const playing = themeAudio.play();
-    if (playing && playing.then) {
-      playing
-        .then(() => {
-          audioArmed = true;
-          fadeVolume(themeAudio, MUSIC_VOLUME, 1200);
-        })
-        .catch(() => {
-          /* still blocked — wait for a real user gesture */
-        });
-    } else {
-      audioArmed = true;
-      fadeVolume(themeAudio, MUSIC_VOLUME, 1200);
+  /* Resolves true only when playback is genuinely running. */
+  function tryPlay() {
+    if (!themeAudio) return Promise.resolve(false);
+    let p;
+    try {
+      p = themeAudio.play();
+    } catch (_) {
+      return Promise.resolve(false);
     }
+    if (p && p.then) return p.then(() => true).catch(() => false);
+    return Promise.resolve(!themeAudio.paused);
+  }
+
+  function armAudio() {
+    if (audioArmed || audioMuted || !themeAudio) return Promise.resolve(false);
+    return tryPlay().then((ok) => {
+      if (ok) {
+        audioArmed = true;
+        fadeVolume(themeAudio, MUSIC_VOLUME, 1200);
+        syncMusicUi();
+      }
+      return ok;
+    });
   }
 
   function armAudioOnGesture() {
-    armAudio();
-    if (audioArmed) {
-      document.removeEventListener('pointerdown', armAudioOnGesture);
-      document.removeEventListener('keydown', armAudioOnGesture);
-    }
-  }
-  if (themeAudio) {
-    themeAudio.volume = 0;
-    document.addEventListener('pointerdown', armAudioOnGesture);
-    document.addEventListener('keydown', armAudioOnGesture);
-    armAudio();
-  }
-
-  if (musicToggle && themeAudio) {
-    musicToggle.addEventListener('click', () => {
-      audioMuted = !audioMuted;
-      musicToggle.classList.toggle('is-muted', audioMuted);
-      musicToggle.setAttribute('aria-pressed', String(!audioMuted));
-      if (musicLabel) musicLabel.textContent = audioMuted ? 'Turn on music' : 'Turn off music';
-      if (audioMuted) {
-        fadeVolume(themeAudio, 0, 500, () => themeAudio.pause());
-      } else {
-        audioArmed = true;
-        const playing = themeAudio.play();
-        if (playing && playing.catch) playing.catch(() => {});
-        fadeVolume(themeAudio, MUSIC_VOLUME, 1200);
+    armAudio().then((ok) => {
+      if (ok) {
+        document.removeEventListener('pointerdown', armAudioOnGesture);
+        document.removeEventListener('keydown', armAudioOnGesture);
       }
     });
   }
 
+  if (themeAudio) {
+    themeAudio.volume = 0;
+    /* keep the label honest if the browser stops playback for any reason */
+    themeAudio.addEventListener('pause', () => {
+      if (!audioMuted) {
+        audioArmed = false;
+        syncMusicUi();
+      }
+    });
+    themeAudio.addEventListener('playing', () => {
+      audioArmed = true;
+      syncMusicUi();
+    });
+    if (!audioMuted) {
+      document.addEventListener('pointerdown', armAudioOnGesture);
+      document.addEventListener('keydown', armAudioOnGesture);
+      armAudio();
+    }
+  }
+  syncMusicUi();
+
+  if (musicToggle && themeAudio) {
+    musicToggle.addEventListener('click', () => {
+      audioMuted = !audioMuted;
+      store.set(MUSIC_PREF_KEY, audioMuted ? 'off' : 'on');
+      if (audioMuted) {
+        fadeVolume(themeAudio, 0, 500, () => themeAudio.pause());
+        audioArmed = false;
+        syncMusicUi();
+      } else {
+        themeAudio.volume = 0;
+        tryPlay().then((ok) => {
+          audioArmed = ok;
+          if (ok) fadeVolume(themeAudio, MUSIC_VOLUME, 1200);
+          syncMusicUi();
+        });
+      }
+    });
+  }
+
+  /* Tightened pacing: 10.7s -> 7.3s, and now includes a real walking frame. */
   const AI_PHASE_DURATIONS = {
-    lighting: 1700,
-    standing: 2200,
-    walking: 2400,
-    desk: 2500,
-    zoomScreen: 1900,
+    lighting: 1250,
+    standing: 1150,
+    walking: 1900,
+    desk: 1600,
+    zoomScreen: 1400,
   };
+  const AI_SEQUENCE = ['lighting', 'standing', 'walking', 'desk', 'zoomScreen'];
+  const AI_TOTAL = AI_SEQUENCE.reduce((n, p) => n + AI_PHASE_DURATIONS[p], 0);
   let introDone = false;
+  let introRunning = false;
   let aiPhaseTimer = null;
 
   function endIntro() {
     if (introDone) return;
     introDone = true;
     clearTimeout(aiPhaseTimer);
+    store.set(INTRO_SEEN_KEY, '1');
     if (!animeIntro) {
       startBootSequence();
       return;
     }
     animeIntro.classList.add('is-out');
-    setTimeout(() => {
-      animeIntro.hidden = true;
-      startBootSequence();
-    }, reduced ? 0 : 560);
+    setTimeout(
+      () => {
+        animeIntro.hidden = true;
+        startBootSequence();
+      },
+      reduced ? 0 : 560
+    );
   }
 
   function advanceAiPhase(queue) {
@@ -432,20 +511,52 @@
     aiPhaseTimer = setTimeout(() => advanceAiPhase(rest), dur);
   }
 
-  if (!animeIntro || reduced) {
-    if (animeIntro) animeIntro.hidden = true;
+  function runIntroSequence() {
+    if (introRunning || introDone) return;
+    introRunning = true;
+    animeIntro.classList.add('is-running');
+    if (aiProgress) {
+      aiProgress.style.setProperty('--ai-total', AI_TOTAL + 'ms');
+      aiProgress.classList.add('is-active');
+    }
+    armAudio();
+    advanceAiPhase(AI_SEQUENCE.slice());
+  }
+
+  /* Returning visitors and reduced-motion users go straight to the terminal. */
+  const introSeen = store.get(INTRO_SEEN_KEY) === '1';
+  const skipIntroEntirely = !animeIntro || reduced || introSeen;
+
+  if (skipIntroEntirely) {
+    if (animeIntro) {
+      animeIntro.hidden = true;
+      animeIntro.setAttribute('aria-hidden', 'true');
+    }
+    introDone = true;
     startBootSequence();
   } else {
     if (aiRope) {
       aiRope.addEventListener('click', () => {
         if (animeIntro.dataset.phase !== 'dark') return;
-        armAudio();
-        advanceAiPhase(['lighting', 'standing', 'walking', 'desk', 'zoomScreen']);
+        runIntroSequence();
       });
     }
+    if (aiSkip) {
+      aiSkip.addEventListener('click', endIntro);
+    }
     document.addEventListener('keydown', (e) => {
-      if (animeIntro.hidden || e.key !== 'Escape') return;
-      endIntro();
+      if (introDone || animeIntro.hidden) return;
+      if (e.key === 'Escape') {
+        endIntro();
+        return;
+      }
+      /* Enter/Space on the rope is handled natively by the button; any other
+         key while still dark starts the sequence so keyboard users aren't stuck. */
+      if (!introRunning && (e.key === 'Enter' || e.key === ' ')) {
+        if (document.activeElement === aiSkip) return;
+        e.preventDefault();
+        runIntroSequence();
+      }
     });
   }
 
@@ -594,6 +705,7 @@
       const el = lsList.querySelector('[data-i="' + idx + '"]');
       if (el) el.scrollIntoView({ block: 'nearest' });
     }
+    writeHash();
   }
 
   lsList.addEventListener('click', (e) => {
@@ -747,6 +859,7 @@
     );
     $('#hintWs').textContent = 'ws: ' + WS_LABEL[name];
     if (name === 'stack') fillBars();
+    writeHash();
     return true;
   }
 
@@ -757,6 +870,79 @@
   $$('[data-goto]').forEach((b) =>
     b.addEventListener('click', () => go(b.dataset.goto))
   );
+
+  /* ===========================================================
+     3b. Hash routing — shareable deep links + back/forward
+     Hash-based on purpose: this is a static bundle, so path
+     routing would 404 on reload without server rewrites. Hashes
+     work unchanged on the S3 preview, on Vercel, and inside a
+     sandboxed iframe.
+     `var` (not `let`) is deliberate: go() can fire before this
+     block is evaluated, and a hoisted `undefined` makes
+     writeHash() a safe no-op instead of a TDZ ReferenceError.
+     =========================================================== */
+  var routingReady;
+  var routingLock;
+
+  function readHash() {
+    return (location.hash || '')
+      .replace(/^#\/?/, '')
+      .split('/')
+      .filter(Boolean)
+      .map((s) => {
+        try {
+          return decodeURIComponent(s);
+        } catch (err) {
+          return s;
+        }
+      });
+  }
+
+  function writeHash(replace) {
+    if (!routingReady || routingLock) return;
+    let h = '#/' + (current === 'home' ? '' : current);
+    if (current === 'projects' && ordered[idx]) {
+      h = '#/projects/' + encodeURIComponent(ordered[idx].slug);
+    }
+    if (location.hash === h) return;
+    routingLock = true;
+    try {
+      if (replace) history.replaceState(null, '', h);
+      else history.pushState(null, '', h);
+    } catch (err) {
+      /* history can throw in sandboxed/opaque-origin frames */
+      location.hash = h;
+    }
+    routingLock = false;
+  }
+
+  function applyHash() {
+    const parts = readHash();
+    const ws = parts[0] || 'home';
+    if (WS.indexOf(ws) === -1) {
+      go('home');
+      writeHash(true);
+      return;
+    }
+    go(ws);
+    if (ws === 'projects' && parts[1]) {
+      const i = ordered.findIndex((p) => p.slug === parts[1]);
+      if (i > -1) selectProject(i, true);
+    }
+  }
+
+  function startRouting() {
+    routingReady = true;
+    applyHash();
+    writeHash(true);
+  }
+
+  window.addEventListener('hashchange', () => {
+    if (!routingLock) applyHash();
+  });
+  window.addEventListener('popstate', () => {
+    if (!routingLock) applyHash();
+  });
 
   /* ===========================================================
      4. Keyboard navigation

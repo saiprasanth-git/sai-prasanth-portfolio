@@ -1233,6 +1233,19 @@ kbd {
   .crt::before {
     opacity: 0.3;
   }
+  /* Keyboard-shortcut footer is meaningless on touch and it collided with
+     the fixed music pill — drop it and reclaim the space. #hintWs stays in
+     the DOM so the JS that writes to it keeps working. */
+  .hint {
+    display: none;
+  }
+  /* the clock was getting clipped by the scrolling top bar */
+  .widget--amber {
+    display: none;
+  }
+  .desk {
+    padding-bottom: 4.25rem;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1314,48 +1327,67 @@ kbd {
   transform: scale(1.08);
 }
 [data-phase='lighting'] .ai__img--lit,
-[data-phase='standing'] .ai__img--lit,
-[data-phase='walking'] .ai__img--lit {
+[data-phase='standing'] .ai__img--lit {
   opacity: 1;
   filter: brightness(1) saturate(1.05);
 }
 [data-phase='lighting'] .ai__img--lit {
   transform: scale(1.08);
-  transition: opacity 1.6s var(--ease), transform 2.6s var(--ease), filter 1.6s var(--ease);
+  transition: opacity 1.2s var(--ease), transform 2s var(--ease), filter 1.2s var(--ease);
 }
 [data-phase='standing'] .ai__img--lit {
-  transform: scale(1.14) translateX(-1%);
-  transition: opacity 0.6s var(--ease), transform 2.2s var(--ease), filter 0.6s var(--ease);
+  transform: scale(1.13) translateX(-1%);
+  transition: opacity 0.5s var(--ease), transform 1.5s var(--ease), filter 0.5s var(--ease);
 }
-[data-phase='walking'] .ai__img--lit {
-  transform: scale(1.34) translateX(4%) translateY(1%);
-  filter: brightness(1) saturate(1.05) blur(1.5px);
-  transition: opacity 0.5s var(--ease) 1.6s, transform 2.6s var(--ease), filter 2.6s var(--ease);
-}
+[data-phase='walking'] .ai__img--lit,
 [data-phase='desk'] .ai__img--lit,
 [data-phase='zoomScreen'] .ai__img--lit,
 [data-phase='done'] .ai__img--lit {
   opacity: 0;
-  transition: opacity 0.5s var(--ease);
+  transition: opacity 0.55s var(--ease);
 }
 
-/* Scene 3 — side view at the desk */
+/* Scene 2b — real mid-stride walking frame, piano left → desk right.
+   Camera trucks rightward with the character to sell continuous motion. */
+.ai__img--walk {
+  opacity: 0;
+  transform: scale(1.16) translateX(-3%);
+  transform-origin: 50% 60%;
+  filter: brightness(0.98) saturate(1.04);
+}
+[data-phase='walking'] .ai__img--walk {
+  opacity: 1;
+  transform: scale(1.2) translateX(4.5%);
+  filter: brightness(1.02) saturate(1.06);
+  transition: opacity 0.6s var(--ease), transform 1.9s cubic-bezier(0.36, 0.05, 0.32, 1),
+    filter 1.9s var(--ease);
+}
+[data-phase='desk'] .ai__img--walk,
+[data-phase='zoomScreen'] .ai__img--walk,
+[data-phase='done'] .ai__img--walk {
+  opacity: 0;
+  transform: scale(1.28) translateX(7%);
+  transition: opacity 0.55s var(--ease), transform 1.2s var(--ease);
+}
+
+/* Scene 3 — side view at the desk.
+   Monitor centre in scene3-desk sits at ~81% x / ~42% y. */
 .ai__img--desk {
   opacity: 0;
-  transform: scale(1.02);
-  transform-origin: 71% 41%;
-  object-position: 68% 42%;
+  transform: scale(1.04);
+  transform-origin: 81% 42%;
+  object-position: 78% 44%;
 }
 [data-phase='desk'] .ai__img--desk {
   opacity: 1;
-  transform: scale(1.02);
-  transition: opacity 1.1s var(--ease) 0.35s, transform 3.4s var(--ease);
+  transform: scale(1.04);
+  transition: opacity 0.9s var(--ease) 0.25s, transform 2.6s var(--ease);
 }
 [data-phase='zoomScreen'] .ai__img--desk {
   opacity: 1;
-  transform: scale(6.2);
+  transform: scale(6.4);
   filter: brightness(1.08) saturate(1.05);
-  transition: opacity 0s, transform 1.9s cubic-bezier(0.65, 0, 0.35, 1), filter 1.9s var(--ease);
+  transition: opacity 0s, transform 1.4s cubic-bezier(0.65, 0, 0.35, 1), filter 1.4s var(--ease);
 }
 [data-phase='done'] .ai__img--desk {
   opacity: 0;
@@ -1416,7 +1448,7 @@ kbd {
   position: absolute;
   inset: 0;
   background: radial-gradient(
-    ellipse 40% 46% at 71% 41%,
+    ellipse 34% 40% at 81% 42%,
     oklch(0.83 0.16 220 / 0.4) 0%,
     transparent 66%
   );
@@ -1426,11 +1458,11 @@ kbd {
 }
 [data-phase='desk'] .ai__screenglow {
   opacity: 0.55;
-  transition: opacity 1.6s var(--ease) 0.6s;
+  transition: opacity 1.2s var(--ease) 0.4s;
 }
 [data-phase='zoomScreen'] .ai__screenglow {
   opacity: 0.85;
-  transition: opacity 1.9s var(--ease);
+  transition: opacity 1.4s var(--ease);
 }
 
 .ai__vignette {
@@ -1461,7 +1493,7 @@ kbd {
   pointer-events: none;
 }
 [data-phase='zoomScreen'] .ai__flash {
-  animation: aiFlash 1.9s ease-in forwards;
+  animation: aiFlash 1.4s ease-in forwards;
 }
 @keyframes aiFlash {
   0%,
@@ -1480,10 +1512,11 @@ kbd {
 .ai__rope {
   position: absolute;
   top: 0;
-  left: 62%;
-  width: 64px;
-  height: 34%;
-  min-height: 220px;
+  left: 75.4%;
+  width: 120px;
+  margin-left: -60px;
+  height: 44%;
+  min-height: 260px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1492,6 +1525,14 @@ kbd {
   transform-origin: top center;
   animation: ropeSway 4.2s ease-in-out infinite;
   transition: opacity 0.6s var(--ease);
+  -webkit-tap-highlight-color: transparent;
+}
+/* Hold still while being aimed at, so the target is easy to hit
+   with a mouse, a finger, or assistive input. */
+.ai__rope:hover,
+.ai__rope:focus-visible,
+.ai__rope:active {
+  animation-play-state: paused;
 }
 [data-phase='dark'] .ai__rope {
   opacity: 1;
@@ -1515,22 +1556,62 @@ kbd {
     transform: rotate(1.6deg);
   }
 }
+/* The rope itself is painted into the artwork, so this line only adds a faint
+   highlight on top of it — drawing a second full rope would read as two ropes. */
 .ai__rope-line {
   width: 2px;
   flex: 1;
-  background: linear-gradient(
-    to bottom,
-    oklch(0.6 0.02 80 / 0.55),
-    oklch(0.6 0.02 80 / 0.85)
-  );
+  background: linear-gradient(to bottom, transparent, oklch(0.78 0.05 80 / 0.16));
+  transition: background 0.25s var(--ease);
 }
+/* Sits directly over the painted brass weight: adds glow, not a second ball. */
 .ai__rope-handle {
-  width: 15px;
-  height: 15px;
+  position: relative;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
-  background: radial-gradient(circle at 35% 30%, oklch(0.72 0.05 76), oklch(0.4 0.04 76));
-  box-shadow: 0 0 10px oklch(0.82 0.1 76 / 0.4);
+  background: radial-gradient(circle, oklch(0.9 0.09 80 / 0.35), transparent 70%);
+  box-shadow: 0 0 14px oklch(0.85 0.1 76 / 0.45);
   flex-shrink: 0;
+}
+/* Invisible 56px touch target around the small visible handle */
+.ai__rope-handle::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 56px;
+  height: 56px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+}
+/* Soft pulsing ring so the one interactive element reads as interactive */
+.ai__rope-handle::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 20px;
+  height: 20px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 1px solid oklch(0.86 0.09 76 / 0.7);
+  animation: ropePulse 2.8s ease-out infinite;
+}
+@keyframes ropePulse {
+  0% {
+    opacity: 0.75;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  70%,
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(2.9);
+  }
+}
+.ai__rope:hover .ai__rope-line,
+.ai__rope:focus-visible .ai__rope-line {
+  background: linear-gradient(to bottom, transparent, oklch(0.85 0.07 80 / 0.4));
 }
 .ai__rope-hint {
   position: absolute;
@@ -1561,7 +1642,8 @@ kbd {
 }
 .ai__rope:hover .ai__rope-handle,
 .ai__rope:focus-visible .ai__rope-handle {
-  box-shadow: 0 0 16px oklch(0.82 0.1 76 / 0.7);
+  box-shadow: 0 0 26px oklch(0.86 0.12 76 / 0.85);
+  background: radial-gradient(circle, oklch(0.92 0.1 80 / 0.5), transparent 70%);
 }
 
 /* Title / caption overlay text */
@@ -1670,8 +1752,9 @@ kbd {
 @media (max-width: 640px) {
   .ai__rope {
     left: 74%;
-    width: 44px;
-    min-height: 160px;
+    width: 88px;
+    margin-left: -44px;
+    min-height: 180px;
   }
   .ai__titles {
     left: var(--s4);
@@ -1684,16 +1767,173 @@ kbd {
     padding: var(--s2) var(--s3);
     font-size: 0.68rem;
   }
+  .ai__skip {
+    right: var(--s3);
+    bottom: var(--s3);
+    padding: var(--s2) var(--s3);
+    font-size: 0.68rem;
+  }
+  /* Portrait crops the 16:9 art horizontally only, so X must equal the
+     subject's own X fraction — that keeps transform-origin valid too. */
+  .ai__img--desk {
+    object-position: 81% 42%;
+  }
+  .ai__img--walk {
+    object-position: 59% 50%;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .anime-intro,
   .ai__img,
   .ai__rope,
+  .ai__rope-handle::before,
   .ai__bloom,
   .ai__spotlight,
-  .ai__screenglow {
+  .ai__screenglow,
+  .ai__progress > span {
     transition-duration: 0.001ms !important;
     animation-duration: 0.001ms !important;
   }
 }
+
+/* ---------- Skip control + progress (intro) ---------------------------- */
+
+.ai__skip {
+  position: absolute;
+  right: var(--s5);
+  bottom: var(--s5);
+  z-index: 25;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s3);
+  padding: var(--s2) var(--s4);
+  border: 1px solid oklch(0.9 0.02 90 / 0.28);
+  border-radius: 999px;
+  background: oklch(0.1 0.01 156 / 0.55);
+  backdrop-filter: blur(6px);
+  color: oklch(0.92 0.02 90 / 0.85);
+  font-family: var(--mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.5s var(--ease), transform 0.5s var(--ease),
+    border-color 0.2s var(--ease), color 0.2s var(--ease);
+}
+/* Visible from the very first frame so nobody is trapped in the intro */
+[data-phase] .ai__skip {
+  opacity: 1;
+  transform: translateY(0);
+  transition-delay: 0.9s;
+}
+[data-phase='zoomScreen'] .ai__skip,
+[data-phase='done'] .ai__skip {
+  opacity: 0;
+  pointer-events: none;
+  transition-delay: 0s;
+}
+.ai__skip:hover,
+.ai__skip:focus-visible {
+  border-color: oklch(0.9 0.02 90 / 0.6);
+  color: oklch(0.98 0.01 90);
+}
+.ai__skip kbd {
+  font-family: var(--mono);
+  font-size: 0.9em;
+  padding: 0.05em 0.4em;
+  border: 1px solid oklch(0.9 0.02 90 / 0.3);
+  border-radius: 4px;
+  background: oklch(1 0 0 / 0.06);
+  color: inherit;
+}
+
+.ai__progress {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  z-index: 24;
+  background: oklch(1 0 0 / 0.08);
+  opacity: 0;
+  transition: opacity 0.4s var(--ease);
+  pointer-events: none;
+}
+.ai__progress.is-active {
+  opacity: 1;
+}
+.ai__progress > span {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: linear-gradient(to right, oklch(0.72 0.14 152 / 0.5), var(--phos));
+  box-shadow: 0 0 10px var(--phos);
+}
+.ai__progress.is-active > span {
+  animation: aiProgress var(--ai-total, 7300ms) linear forwards;
+}
+@keyframes aiProgress {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+/* ---------- No-JavaScript fallback ------------------------------------- */
+
+.noscript-fallback {
+  position: relative;
+  z-index: 5000;
+  max-width: 78ch;
+  margin: 0 auto;
+  padding: var(--s8) var(--s5) var(--s10);
+  font-family: var(--mono);
+  font-size: var(--text-sm);
+  line-height: 1.7;
+  color: var(--fg);
+  background: var(--bg);
+}
+.noscript-fallback h1 {
+  font-size: var(--text-2xl);
+  letter-spacing: 0.01em;
+  color: var(--phos);
+}
+.noscript-fallback h2 {
+  margin-top: var(--s8);
+  padding-bottom: var(--s2);
+  border-bottom: 1px solid var(--line);
+  font-size: var(--text-lg);
+  color: var(--phos);
+}
+.noscript-fallback h3 {
+  margin-top: var(--s6);
+  font-size: var(--text-base);
+  color: oklch(0.95 0.01 156);
+}
+.noscript-fallback p,
+.noscript-fallback li {
+  margin-top: var(--s3);
+  color: var(--fg-dim);
+}
+.noscript-fallback ul {
+  padding-left: var(--s5);
+  list-style: square;
+}
+.noscript-fallback strong {
+  color: var(--fg);
+}
+.noscript-fallback a {
+  color: var(--phos);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.noscript-fallback article {
+  margin-top: var(--s6);
+  padding-top: var(--s4);
+  border-top: 1px dashed var(--line);
+}
+/* Hide the interactive chrome entirely when JS is unavailable */
