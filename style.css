@@ -1523,7 +1523,9 @@ kbd {
   z-index: 20;
   cursor: pointer;
   transform-origin: top center;
-  animation: ropeSway 4.2s ease-in-out infinite;
+  /* No sway when this element is an overlay on the painted rope: the painting
+     is static, so rotating the overlay would slide the glow off the brass
+     weight. Only the self-drawn portrait rope sways. */
   transition: opacity 0.6s var(--ease);
   -webkit-tap-highlight-color: transparent;
 }
@@ -1567,6 +1569,9 @@ kbd {
 /* Portrait crops the painted rope out of frame, so here the element has to BE
    the rope rather than a highlight over one. JS adds this class only when the
    painted rope is genuinely off-screen. */
+.ai__rope--drawn {
+  animation: ropeSway 4.2s ease-in-out infinite;
+}
 .ai__rope--drawn .ai__rope-line {
   width: 1.5px;
   background: linear-gradient(
