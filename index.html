@@ -57,8 +57,41 @@
   <body>
     <a class="skip-link" href="#desk">Skip to content</a>
 
+    <!-- ====================== cinematic anime intro ================== -->
+    <div class="anime-intro" id="animeIntro" data-phase="dark">
+      <div class="ai__stage">
+        <img class="ai__img ai__img--dark" id="aiDark" src="./assets/intro/scene1-piano-dark.jpg" alt="" aria-hidden="true" />
+        <img class="ai__img ai__img--lit" id="aiLit" src="./assets/intro/scene2-piano-lit.jpg" alt="" aria-hidden="true" loading="lazy" />
+        <img class="ai__img ai__img--desk" id="aiDesk" src="./assets/intro/scene3-desk.jpg" alt="" aria-hidden="true" loading="lazy" />
+        <div class="ai__spotlight" aria-hidden="true"></div>
+        <div class="ai__bloom" aria-hidden="true"></div>
+        <div class="ai__screenglow" aria-hidden="true"></div>
+        <div class="ai__vignette" aria-hidden="true"></div>
+        <div class="ai__grain" aria-hidden="true"></div>
+        <div class="ai__flash" id="aiFlash" aria-hidden="true"></div>
+      </div>
+
+      <button type="button" class="ai__rope" id="aiRope" aria-label="Pull the rope to turn on the light">
+        <span class="ai__rope-line"></span>
+        <span class="ai__rope-handle"></span>
+        <span class="ai__rope-hint" id="aiRopeHint">pull for light</span>
+      </button>
+
+      <div class="ai__titles" aria-hidden="true">
+        <p class="ai__name">Sai Prasanth</p>
+        <p class="ai__hint" id="aiHint">nocturne — pull the rope</p>
+        <p class="ai__caption" id="aiCaption"></p>
+      </div>
+    </div>
+
+    <audio id="themeAudio" src="./assets/audio/theme.mp3" preload="auto" loop></audio>
+    <button type="button" class="music-toggle" id="musicToggle" aria-pressed="true" aria-label="Toggle background music">
+      <span class="music-toggle__eq" id="musicEq" aria-hidden="true"><span></span><span></span><span></span></span>
+      <span id="musicLabel">Turn off music</span>
+    </button>
+
     <!-- ============================ boot ============================ -->
-    <div class="boot" id="boot">
+    <div class="boot" id="boot" hidden>
       <pre class="boot__log" id="bootLog" aria-hidden="true"></pre>
       <div class="boot__galaxy" id="bootGalaxy" hidden aria-hidden="true">
         <canvas id="galaxyCanvas"></canvas>

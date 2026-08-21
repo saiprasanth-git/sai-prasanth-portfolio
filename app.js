@@ -146,10 +146,8 @@
     resize();
     window.addEventListener('resize', resize);
 
-    const PHOS = '#6cf07c',
-      PHOS_MID = '#4ab962',
-      AMBER = '#fbb336',
-      FG_DIM = '#89988d';
+    const PHOS_MID = '#4ab962',
+      AMBER = '#fbb336';
 
     const stars = Array.from({ length: 80 }, () => ({
       x: Math.random() - 0.5,
@@ -159,7 +157,6 @@
     }));
 
     const SEGMENTS = [
-      { dur: 460, label: 'SOL SYSTEM', sub: 'scanning ephemeris…' },
       { dur: 380, label: 'EARTH', sub: '3rd planet · locking orbit' },
       { dur: 340, label: 'NORTH AMERICA', sub: 'continent resolved' },
       { dur: 300, label: 'TEXAS', sub: 'state resolved' },
@@ -196,7 +193,7 @@
       const cx = w / 2,
         cy = h / 2;
 
-      const warp = idx > 0 ? Math.min(1, globalT * 1.6) : 0;
+      const warp = Math.min(1, globalT * 1.6);
       stars.forEach((s) => {
         const tw = 0.5 + 0.5 * Math.sin(globalT * 9 + s.p);
         const k = 1 + warp * 1.6;
@@ -208,39 +205,7 @@
         ctx.fill();
       });
 
-      if (idx === 0) {
-        const grow = ease(Math.min(1, local * 2.2));
-        ctx.beginPath();
-        ctx.fillStyle = AMBER;
-        ctx.shadowColor = AMBER;
-        ctx.shadowBlur = 18;
-        ctx.arc(cx, cy, 9 * grow, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.shadowBlur = 0;
-        const orbits = [
-          { r: 26, pr: 2.1, col: FG_DIM, speed: 2.6 },
-          { r: 42, pr: 3.2, col: PHOS, speed: 1.8 },
-          { r: 60, pr: 2.5, col: FG_DIM, speed: 1.2 },
-          { r: 80, pr: 2.8, col: AMBER, speed: 0.85 },
-        ];
-        orbits.forEach((o, i) => {
-          ctx.beginPath();
-          ctx.strokeStyle = 'rgba(137,152,141,0.22)';
-          ctx.lineWidth = 1;
-          ctx.arc(cx, cy, o.r * grow, 0, Math.PI * 2);
-          ctx.stroke();
-          const ang = globalT * Math.PI * 2 * o.speed + i * 1.7;
-          const px = cx + Math.cos(ang) * o.r * grow;
-          const py = cy + Math.sin(ang) * o.r * grow * 0.55;
-          ctx.beginPath();
-          ctx.fillStyle = o.col;
-          ctx.arc(px, py, o.pr, 0, Math.PI * 2);
-          ctx.fill();
-        });
-        return;
-      }
-
-      const stageProgress = (idx - 1 + local) / (SEGMENTS.length - 1);
+      const stageProgress = (idx + local) / SEGMENTS.length;
       const radius = 34 + stageProgress * Math.min(w, h) * 0.62;
 
       ctx.beginPath();
@@ -347,9 +312,142 @@
     skipped = true;
     finishBoot(true);
   });
-  document.addEventListener('keydown', skipOnKey);
-  if (reduced) finishBoot(true);
-  else runBoot();
+
+  function startBootSequence() {
+    boot.hidden = false;
+    document.addEventListener('keydown', skipOnKey);
+    if (reduced) finishBoot(true);
+    else runBoot();
+  }
+
+  /* ===========================================================
+     1b. Cinematic anime intro — piano room → desk → zoom into screen
+     =========================================================== */
+  const animeIntro = $('#animeIntro');
+  const aiRope = $('#aiRope');
+  const themeAudio = $('#themeAudio');
+  const musicToggle = $('#musicToggle');
+  const musicLabel = $('#musicLabel');
+  const MUSIC_VOLUME = 0.55;
+  let audioMuted = false;
+  let audioArmed = false;
+
+  function fadeVolume(el, to, duration, done) {
+    const from = el.volume;
+    const t0 = performance.now();
+    function step(ts) {
+      const t = Math.min(1, (ts - t0) / duration);
+      el.volume = from + (to - from) * t;
+      if (t < 1) requestAnimationFrame(step);
+      else if (done) done();
+    }
+    requestAnimationFrame(step);
+  }
+
+  function armAudio() {
+    if (audioArmed || audioMuted || !themeAudio) return;
+    const playing = themeAudio.play();
+    if (playing && playing.then) {
+      playing
+        .then(() => {
+          audioArmed = true;
+          fadeVolume(themeAudio, MUSIC_VOLUME, 1200);
+        })
+        .catch(() => {
+          /* still blocked — wait for a real user gesture */
+        });
+    } else {
+      audioArmed = true;
+      fadeVolume(themeAudio, MUSIC_VOLUME, 1200);
+    }
+  }
+
+  function armAudioOnGesture() {
+    armAudio();
+    if (audioArmed) {
+      document.removeEventListener('pointerdown', armAudioOnGesture);
+      document.removeEventListener('keydown', armAudioOnGesture);
+    }
+  }
+  if (themeAudio) {
+    themeAudio.volume = 0;
+    document.addEventListener('pointerdown', armAudioOnGesture);
+    document.addEventListener('keydown', armAudioOnGesture);
+    armAudio();
+  }
+
+  if (musicToggle && themeAudio) {
+    musicToggle.addEventListener('click', () => {
+      audioMuted = !audioMuted;
+      musicToggle.classList.toggle('is-muted', audioMuted);
+      musicToggle.setAttribute('aria-pressed', String(!audioMuted));
+      if (musicLabel) musicLabel.textContent = audioMuted ? 'Turn on music' : 'Turn off music';
+      if (audioMuted) {
+        fadeVolume(themeAudio, 0, 500, () => themeAudio.pause());
+      } else {
+        audioArmed = true;
+        const playing = themeAudio.play();
+        if (playing && playing.catch) playing.catch(() => {});
+        fadeVolume(themeAudio, MUSIC_VOLUME, 1200);
+      }
+    });
+  }
+
+  const AI_PHASE_DURATIONS = {
+    lighting: 1700,
+    standing: 2200,
+    walking: 2400,
+    desk: 2500,
+    zoomScreen: 1900,
+  };
+  let introDone = false;
+  let aiPhaseTimer = null;
+
+  function endIntro() {
+    if (introDone) return;
+    introDone = true;
+    clearTimeout(aiPhaseTimer);
+    if (!animeIntro) {
+      startBootSequence();
+      return;
+    }
+    animeIntro.classList.add('is-out');
+    setTimeout(() => {
+      animeIntro.hidden = true;
+      startBootSequence();
+    }, reduced ? 0 : 560);
+  }
+
+  function advanceAiPhase(queue) {
+    if (introDone) return;
+    if (!queue.length) {
+      endIntro();
+      return;
+    }
+    const phase = queue[0];
+    const rest = queue.slice(1);
+    animeIntro.dataset.phase = phase;
+    const dur = AI_PHASE_DURATIONS[phase];
+    if (!dur) return;
+    aiPhaseTimer = setTimeout(() => advanceAiPhase(rest), dur);
+  }
+
+  if (!animeIntro || reduced) {
+    if (animeIntro) animeIntro.hidden = true;
+    startBootSequence();
+  } else {
+    if (aiRope) {
+      aiRope.addEventListener('click', () => {
+        if (animeIntro.dataset.phase !== 'dark') return;
+        armAudio();
+        advanceAiPhase(['lighting', 'standing', 'walking', 'desk', 'zoomScreen']);
+      });
+    }
+    document.addEventListener('keydown', (e) => {
+      if (animeIntro.hidden || e.key !== 'Escape') return;
+      endIntro();
+    });
+  }
 
   /* ===========================================================
      2. Static content rendering
