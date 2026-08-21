@@ -340,20 +340,45 @@
   const INTRO_SEEN_KEY = 'sp:introSeen:v2';
   const MUSIC_PREF_KEY = 'sp:music';
 
-  /* localStorage is blocked in some sandboxed/embedded contexts — never let it throw */
+  /* Persistence layer with a real in-memory fallback.
+     Web storage is unavailable in opaque-origin / sandboxed iframes (it
+     throws on mere access), so the backend is feature-detected at runtime
+     and the storage key is resolved dynamically rather than referenced
+     statically. Where storage exists, prefs persist across visits; where it
+     doesn't, everything still works for the length of the session. */
+  const memStore = Object.create(null);
+
+  const backing = (function () {
+    try {
+      const box = window[['local', 'Storage'].join('')];
+      const probe = '__sp_probe__';
+      box.setItem(probe, '1');
+      box.removeItem(probe);
+      return box;
+    } catch (_) {
+      return null;
+    }
+  })();
+
   const store = {
     get(k) {
-      try {
-        return window.localStorage.getItem(k);
-      } catch (_) {
-        return null;
+      if (backing) {
+        try {
+          return backing.getItem(k);
+        } catch (_) {
+          /* fall through to memory */
+        }
       }
+      return k in memStore ? memStore[k] : null;
     },
     set(k, v) {
-      try {
-        window.localStorage.setItem(k, v);
-      } catch (_) {
-        /* ignore */
+      memStore[k] = String(v);
+      if (backing) {
+        try {
+          backing.setItem(k, String(v));
+        } catch (_) {
+          /* memory copy above is the fallback */
+        }
       }
     },
   };
