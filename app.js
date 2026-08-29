@@ -646,10 +646,10 @@
   heroArt.innerHTML =
     ASCII_SAI.split('\n')
       .map((l) => '<span>' + esc(l) + '</span>')
-      .join('') +
+      .join(\n'') + '\n' +
     ASCII_PRASANTH.split('\n')
       .map((l) => '<span class="lo">' + esc(l) + '</span>')
-      .join('');
+      .join(\n);
 
   $('#heroTag').textContent = IDENTITY.tagline;
   $('#tux').textContent = TUX;
